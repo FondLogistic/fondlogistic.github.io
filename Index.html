@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>FOND LOGISTIC</title>
+
+<style>
+body {
+margin:0;
+font-family:Arial;
+background:linear-gradient(#1a0025,#000);
+color:white;
+text-align:center;
+}
+
+h1 {
+font-size:42px;
+color:#c084fc;
+}
+
+.card {
+background:rgba(255,255,255,0.05);
+margin:15px;
+padding:20px;
+border-radius:20px;
+}
+
+select, input {
+width:80%;
+padding:10px;
+margin-top:10px;
+border-radius:10px;
+border:none;
+}
+
+button {
+padding:12px;
+border:none;
+border-radius:10px;
+margin-top:10px;
+font-size:16px;
+}
+
+.whatsapp {background:#25D366;}
+.telegram {background:#0088cc;}
+
+.fixed {
+position:fixed;
+bottom:10px;
+left:0;
+right:0;
+display:flex;
+gap:10px;
+padding:10px;
+}
+
+.fixed a {
+flex:1;
+text-decoration:none;
+color:white;
+padding:14px;
+border-radius:12px;
+}
+</style>
+</head>
+
+<body>
+
+<h1>FOND LOGISTIC</h1>
+<p>Отгрузка на склады Wildberries</p>
+<p>🔥 Осталось 3 слота на сегодня</p>
+
+<div class="card">
+<h3>💰 Рассчитать стоимость</h3>
+
+<select id="city" onchange="updateOptions()">
+<option value="">Выберите склад</option>
+<option value="electro">Электросталь / Обухово</option>
+<option value="koledino">Коледино</option>
+<option value="spb">СПБ</option>
+<option value="tula">Тула / Алексин</option>
+<option value="kazan">Казань</option>
+<option value="krasnodar">Краснодар</option>
+<option value="ryazan">Рязань / Владимир</option>
+</select>
+
+<select id="type"></select>
+
+<input type="number" id="qty" placeholder="Количество">
+
+<button onclick="calc()">Рассчитать</button>
+
+<p id="result"></p>
+
+<button onclick="send()">Отправить заявку</button>
+
+</div>
+
+<div class="card">
+<h3>🎮 Получи скидку 10%</h3>
+<p>Объедь 10 машин</p>
+
+<canvas id="game" width="300" height="400"></canvas>
+
+<p id="score">Очки: 0</p>
+<p id="reward"></p>
+
+<button onclick="send()">Получить скидку</button>
+</div>
+
+<div class="fixed">
+<a href="#" onclick="send()" class="whatsapp">WhatsApp</a>
+<a href="https://t.me/Fomin_No" class="telegram">Telegram</a>
+</div>
+
+<script>
+let prices = {
+electro:[{name:"Короб 150₽",price:150},{name:"Паллет 1700₽",price:1700}],
+koledino:[{name:"Паллет 1700₽",price:1700}],
+spb:[{name:"Короб 150₽",price:150},{name:"Паллет 4000₽",price:4000}],
+tula:[{name:"Короб 150₽",price:150},{name:"Паллет 2400₽",price:2400}],
+kazan:[{name:"Короб 150₽",price:150},{name:"Паллет 5000₽",price:5000}],
+krasnodar:[{name:"Короб 150₽",price:150},{name:"Паллет 5700₽",price:5700}],
+ryazan:[{name:"Паллет 3200₽",price:3200}]
+};
+
+function updateOptions(){
+let city=document.getElementById("city").value;
+let typeSelect=document.getElementById("type");
+typeSelect.innerHTML="";
+
+prices[city].forEach(opt=>{
+let option=document.createElement("option");
+option.text=opt.name;
+option.value=opt.price;
+typeSelect.add(option);
+});
+}
+
+function calc(){
+let price=document.getElementById("type").value;
+let qty=document.getElementById("qty").value;
+let total=price*qty;
+document.getElementById("result").innerHTML="Итого: "+total+" ₽";
+}
+
+function send(){
+let city=document.getElementById("city").value;
+let qty=document.getElementById("qty").value;
+
+let text="Здравствуйте, интересует отгрузка!%0AСклад: "+city+"%0AКол-во: "+qty;
+
+window.location.href="https://wa.me/79772613079?text="+text;
+}
+
+// GAME
+let canvas=document.getElementById("game");
+let ctx=canvas.getContext("2d");
+
+let car={x:130,y:320};
+let obstacles=[];
+let score=0;
+let unlocked=false;
+
+document.addEventListener("keydown",e=>{
+if(e.key==="ArrowLeft") car.x-=25;
+if(e.key==="ArrowRight") car.x+=25;
+});
+
+function game(){
+ctx.clearRect(0,0,300,400);
+
+ctx.fillStyle="lime";
+ctx.fillRect(car.x,car.y,40,50);
+
+if(Math.random()<0.04){
+obstacles.push({x:Math.random()*260,y:-40});
+}
+
+ctx.fillStyle="red";
+for(let i=0;i<obstacles.length;i++){
+let o=obstacles[i];
+o.y+=6;
+ctx.fillRect(o.x,o.y,40,40);
+
+if(o.y>400){
+score++;
+document.getElementById("score").innerHTML="Очки: "+score;
+obstacles.splice(i,1);
+}
+
+if(car.x < o.x+40 && car.x+40 > o.x && car.y < o.y+40 && car.y+50 > o.y){
+score=0;
+obstacles=[];
+unlocked=false;
+document.getElementById("score").innerHTML="Очки: 0";
+document.getElementById("reward").innerHTML="";
+}
+}
+
+if(score>=10 && !unlocked){
+unlocked=true;
+document.getElementById("reward").innerHTML="🎉 СКИДКА 10%!";
+}
+
+requestAnimationFrame(game);
+}
+
+game();
+</script>
+
+</body>
+</html>
